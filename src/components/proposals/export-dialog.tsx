@@ -46,11 +46,11 @@ export function ExportDialog({ proposalId, defaultPlatform }: Props) {
 
   return (
     <Dialog onOpenChange={(open) => { if (open) fetchPreview(platform); }}>
-      <DialogTrigger>
-        <Button variant="outline" size="sm" aria-label="エクスポート" className="gap-1">
-          <Download size={14} />
-          エクスポート
-        </Button>
+      <DialogTrigger
+        render={<Button variant="outline" size="sm" aria-label="エクスポート" className="gap-1" />}
+      >
+        <Download size={14} />
+        エクスポート
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
