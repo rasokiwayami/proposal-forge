@@ -12,9 +12,9 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="pf-shell">
       <Sidebar profile={profile} user={user} />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="pf-page overflow-y-auto">
         {children}
       </main>
     </div>

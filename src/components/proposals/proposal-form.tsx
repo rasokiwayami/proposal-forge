@@ -1,17 +1,19 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, type ControllerRenderProps, type FieldValues } from 'react-hook-form';
+import { useForm, type ControllerRenderProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { createClient } from '@/lib/supabase/client';
+
+const PLATFORMS = [
+  { value: 'crowdworks', label: 'CrowdWorks', color: 'oklch(72% 0.16 150)' },
+  { value: 'lancers',    label: 'Lancers',    color: 'oklch(72% 0.12 235)' },
+  { value: 'coconala',   label: 'Coconala',   color: 'oklch(72% 0.12 30)'  },
+  { value: 'other',      label: 'その他',      color: 'var(--fg-3)'         },
+] as const;
 
 const schema = z.object({
   job_title: z.string().min(1, '案件タイトルは必須です'),
@@ -21,6 +23,58 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
+
+const AGENT_NAMES = [
+  { id: 'A01', label: '業界アナリスト' },
+  { id: 'A02', label: '価格エスティメーター' },
+  { id: 'A03', label: '納期エスティメーター' },
+  { id: 'A04', label: '差別化ストラテジスト' },
+  { id: 'A05', label: 'コピーライター' },
+];
+
+function AgentsLoading() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
+      <div className="terminal">
+        <div className="terminal__head">
+          <span style={{ color: 'var(--accent)' }}>◆</span> ProposalForge — Agent Pipeline
+        </div>
+        <div className="terminal__body">
+          <div className="term-line">
+            <span className="ts">00:00</span>
+            <span className="ag">FORGE</span>
+            <span className="msg">5エージェントを並列起動中...</span>
+          </div>
+          {AGENT_NAMES.map((a, i) => (
+            <div key={a.id} className="term-line ok">
+              <span className="ts">00:0{i}</span>
+              <span className="ag">{a.id}</span>
+              <span className="msg">{a.label} — 分析中</span>
+            </div>
+          ))}
+          <div className="term-line">
+            <span className="ag">›</span>
+            <span className="caret" />
+          </div>
+        </div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
+        {AGENT_NAMES.map((a) => (
+          <div key={a.id} className="agent-tile">
+            <div className="agent-tile__top">
+              <span className="agent-tile__id">{a.id}</span>
+              <span className="agent-tile__name">{a.label}</span>
+              <span className="agent-tile__status">
+                <span className="dot" />running
+              </span>
+            </div>
+            <div className="agent-tile__bar"><i /></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function ProposalForm() {
   const router = useRouter();
@@ -59,94 +113,106 @@ export function ProposalForm() {
       router.push(`/proposals/${data.proposal_id}`);
     } catch (e) {
       toast.error((e as Error).message);
-    } finally {
       setLoading(false);
     }
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <p className="text-muted-foreground text-sm animate-pulse">5体のエージェントが分析中...</p>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
-        ))}
-      </div>
-    );
-  }
+  if (loading) return <AgentsLoading />;
+
+  const platform = form.watch('platform');
 
   return (
     <div>
       {profileMissing && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
-          プロフィールが未設定です。<a href="/settings" className="underline ml-1">設定ページ</a>で情報を入力すると精度が上がります。
+        <div style={{
+          marginBottom: 'var(--sp-4)', padding: 'var(--sp-3) var(--sp-4)',
+          background: 'var(--accent-soft)', border: '1px solid var(--accent-line)',
+          borderRadius: 'var(--rd-md)', fontSize: 'var(--fs-13)', color: 'var(--fg-1)',
+        }}>
+          プロフィールが未設定です。
+          <a href="/settings" style={{ color: 'var(--accent)', marginLeft: 4 }}>設定ページ</a>
+          で情報を入力すると精度が上がります。
         </div>
       )}
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
+          <div className="pf-field">
+            <label className="pf-field__label">プラットフォーム</label>
+            <div className="pf-segmented" role="group" aria-label="プラットフォームを選択">
+              {PLATFORMS.map((p) => (
+                <button
+                  key={p.value}
+                  type="button"
+                  className={platform === p.value ? 'on' : ''}
+                  onClick={() => form.setValue('platform', p.value)}
+                  aria-pressed={platform === p.value}
+                >
+                  <i style={{ width: 6, height: 6, borderRadius: 2, background: p.color, display: 'inline-block', flexShrink: 0 }} />
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <FormField
             control={form.control}
             name="job_title"
             render={({ field }: { field: ControllerRenderProps<FormData, 'job_title'> }) => (
               <FormItem>
-                <FormLabel>案件タイトル *</FormLabel>
-                <FormControl>
-                  <Input id="job_title" placeholder="例: Webアプリ開発" {...field} />
-                </FormControl>
-                <FormMessage />
+                <div className="pf-field">
+                  <label htmlFor="job_title" className="pf-field__label">
+                    案件タイトル <span className="req">*</span>
+                  </label>
+                  <FormControl>
+                    <input id="job_title" className="pf-input" placeholder="例: Webアプリ開発" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="job_description"
             render={({ field }: { field: ControllerRenderProps<FormData, 'job_description'> }) => (
               <FormItem>
-                <FormLabel>案件内容 *</FormLabel>
-                <FormControl>
-                  <Textarea id="job_description" placeholder="案件の詳細を貼り付けてください" rows={8} {...field} />
-                </FormControl>
-                <FormMessage />
+                <div className="pf-field">
+                  <label htmlFor="job_description" className="pf-field__label">
+                    案件内容 <span className="req">*</span>
+                  </label>
+                  <FormControl>
+                    <textarea id="job_description" className="pf-textarea" placeholder="案件の詳細を貼り付けてください" rows={8} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="job_url"
             render={({ field }: { field: ControllerRenderProps<FormData, 'job_url'> }) => (
               <FormItem>
-                <FormLabel>案件URL（任意）</FormLabel>
-                <FormControl>
-                  <Input id="job_url" placeholder="https://..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="platform"
-            render={({ field }: { field: ControllerRenderProps<FormData, 'platform'> }) => (
-              <FormItem>
-                <FormLabel>プラットフォーム</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <div className="pf-field">
+                  <label htmlFor="job_url" className="pf-field__label">案件URL（任意）</label>
                   <FormControl>
-                    <SelectTrigger id="platform" aria-label="プラットフォームを選択">
-                      <SelectValue />
-                    </SelectTrigger>
+                    <input id="job_url" className="pf-input" placeholder="https://..." {...field} />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="crowdworks">CrowdWorks</SelectItem>
-                    <SelectItem value="lancers">Lancers</SelectItem>
-                    <SelectItem value="coconala">coconala</SelectItem>
-                    <SelectItem value="other">その他</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" aria-label="提案文を生成する">生成する</Button>
+
+          <button type="submit" className="btn btn--primary" aria-label="提案文を生成する" style={{ width: '100%', justifyContent: 'center' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="m12 3 2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>
+            </svg>
+            生成する
+          </button>
         </form>
       </Form>
     </div>
