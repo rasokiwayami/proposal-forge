@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ProposalForge
 
-## Getting Started
+AI-powered proposal generator for Japanese freelance platforms.
 
-First, run the development server:
+## 動機
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+フリーランス案件への提案文作成を自動化するために開発。ECC（Everything Claude Code）の評価プロセスで活用しながら、実際の案件獲得にもドッグフーディングとして使用する。
+
+## 技術スタック
+
+- **フロントエンド**: Next.js 15 (App Router, TypeScript strict), Tailwind CSS, shadcn/ui
+- **バックエンド**: Supabase (PostgreSQL + Auth + RLS)
+- **AI**: Google Gemini API (gemini-2.5-flash / gemini-2.5-pro)
+- **パッケージマネージャ**: pnpm
+
+## アーキテクチャ
+
+案件情報を入力すると5体のエージェントが並列分析し、提案文を生成する。
+
+```
+案件入力
+   ↓
+┌─────────────────────────────────────┐
+│ 並列実行                              │
+│  ① industry-analyst (flash)         │
+│  ② pricing-estimator (flash)        │
+│  ③ schedule-estimator (flash)       │
+│  ④ differentiator (flash)           │
+└─────────────────────────────────────┘
+   ↓
+merger (flash) → ドラフト生成
+   ↓
+copy-reviewer (pro) → 最終提案文
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## セットアップ
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# 1. クローン
+git clone https://github.com/rasokiwayami/proposal-forge
+cd proposal-forge
+pnpm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 2. 環境変数
+cp .env.local.example .env.local
+# .env.local に各値を入力
 
-## Learn More
+# 3. Supabase セットアップ
+# - Supabase でプロジェクト作成
+# - SQL Editor で supabase/migrations/20260419000001_init.sql を実行
+# - Authentication → Providers → Google を有効化
 
-To learn more about Next.js, take a look at the following resources:
+# 4. 起動
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Vercel デプロイ
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Vercel で GitHub リポジトリをインポート
+2. Environment Variables に `.env.local` の4値を設定
+3. Deploy
+4. 本番URLを Supabase の Authentication → URL Configuration → Redirect URLs に追加
 
-## Deploy on Vercel
+## ライセンス
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
