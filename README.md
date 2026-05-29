@@ -2,6 +2,12 @@
 
 AI-powered proposal generator for Japanese freelance platforms.
 
+## 現在の位置づけ
+
+ProposalForgeは、Claude期の高速プロトタイピングで作った提案文生成実験です。現在の収益化・案件処理の本命は、案件発見、準備、返信管理、guarded workflowまで含む `shieikan/crowdworks-agent` です。
+
+このrepoは、5-agent proposal generationの設計実験・源流として扱います。現役のCrowdWorks運用システムとしては扱いません。
+
 ## 動機
 
 フリーランス案件への提案文作成を自動化するために開発。ECC（Everything Claude Code）の評価プロセスで活用しながら、実際の案件獲得にもドッグフーディングとして使用する。
