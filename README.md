@@ -1,6 +1,8 @@
 # ProposalForge
 
-AI-powered proposal generator for Japanese freelance platforms.
+AI-powered proposal generator for Japanese freelance platforms. This is a
+standalone Proposal Forge product; its Gemini pipeline is not the Jinsei Global
+role model.
 
 ## 動機
 
@@ -15,7 +17,7 @@ AI-powered proposal generator for Japanese freelance platforms.
 
 ## アーキテクチャ
 
-案件情報を入力すると5体のエージェントが並列分析し、提案文を生成する。
+案件情報を入力すると複数のGemini pipeline stepが並列分析し、提案文を生成する。
 
 Note: these are Proposal Forge product-local Gemini pipeline steps, not Jinsei
 canonical sub-agents. See `docs/LEGACY_AGENT_PIPELINE.md` for the Global role
