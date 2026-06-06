@@ -1,0 +1,68 @@
+project:
+  repo: rasokiwayami/proposal-forge
+  type: portfolio_product_candidate
+  domain: proposal_generation
+  orchestrator: project_orchestrator
+  primary_goal: Next.js proposal generation app with product-local Gemini analysis pipeline
+  default_branch: main
+  visibility: private_or_public_per_current_remote
+
+runtime:
+  local_only: true
+  deployment: vercel_or_next_configured_but_not_default_action
+  languages:
+    - typescript
+  package_managers:
+    - pnpm
+  operating_environment:
+    - Mac local operation under /Users/sora/dev/proposal-forge
+    - Legacy Windows/WSL operation remains a normal Node/Next.js context
+
+authority:
+  global_default_band: A2
+  canonical_authority_registry: shieikan/jinsei/registries/AUTHORITY_MATRIX.md
+  forbidden:
+    - credential or token exposure
+    - Supabase production data mutation without explicit approval
+    - external deployment without explicit approval
+    - raw customer/proposal data in tracked files
+    - treating product-local Gemini functions as Jinsei canonical subagents
+    - push without required Review Controller approval
+
+global_coding_department:
+  default_route:
+    - Executive Orchestrator
+    - Proposal Forge Project Orchestrator
+    - Implementation Planning Worker
+    - Implementation Worker
+    - Implementation Review Controller
+  queue_request_command: cd /Users/sora/dev/jinsei && python3 scripts/dispatch_codex_session.py --queue-request --project "Proposal Forge" --repo /Users/sora/dev/proposal-forge
+  run_queue_command: cd /Users/sora/dev/jinsei && python3 scripts/dispatch_codex_session.py --from-queue --limit 3
+  push_review_check_command: cd /Users/sora/dev/jinsei && python3 scripts/dispatch_codex_session.py --check-push-review --project "Proposal Forge"
+  required_for:
+    - non_trivial_implementation
+    - multi_file_changes
+    - auth_or_safety_work
+    - supabase_or_gemini_changes
+    - gui_or_design_work
+    - deploy_or_push_readiness
+
+verification:
+  default:
+    - pnpm lint
+    - pnpm build
+  formatting:
+    - git diff --check
+
+state:
+  ignored_runtime_dirs:
+    - node_modules/
+    - .next/
+    - coverage/
+    - output/
+  canonical_progress:
+    - AGENTS.md
+    - PROJECT_PROFILE.yaml
+    - CLAUDE.md
+    - package.json
+    - src/
