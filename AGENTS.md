@@ -23,6 +23,17 @@ Use Planning Worker, Implementation Worker, and Review Controller separation for
 multi-file changes, Supabase/auth work, Gemini/API behavior, GUI/design work,
 deployment readiness, or push readiness.
 
+## Development Autonomy
+
+Development GitHub operations are L5 under Jinsei's
+`GITHUB_DEVOPS_AUTONOMY_POLICY.md` after this repo's verification and required
+Review Controller gates pass. This includes branch work, local commits, pushes
+to an existing approved remote, PR creation/update, and issue operations.
+
+Public deployment, repository visibility changes, billing or paid services,
+secret mutation, production data mutation, public claims, and publication remain
+gated.
+
 Do not read, print, commit, or copy `.env*`, Supabase keys, Gemini/API keys,
 auth tokens, customer/proposal private data, browser profiles, raw logs, or
 generated private workspaces. Do not deploy or mutate production data without
